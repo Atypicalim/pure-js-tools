@@ -1,5 +1,6 @@
 
 /**
+ * https://krasimirtsonev.com/blog/article/Javascript-template-engine-in-just-20-line
  * simple template renderer
  * @param {*} html 
  * @returns renderer func
