@@ -14,6 +14,14 @@ console.log(html);
 // template test, hello someone ...
 ```
 
+2. query
+
+```javascript
+var $ = query2selector();
+var obj = $("div");
+obj.style("color", "blue");
+```
+
 ---
 
 > for more feture plz read the source code ...

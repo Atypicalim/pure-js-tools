@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://raw.githack.com/kompasim/pure-js-tools/master/src/query.js"></script>
+</head>
+<body>
+    <div>QUERY:</div>
+    <div id="myContainer1" style="background-color: aquamarine;color: rgb(218, 15, 15);">111</div>
+    <div id="myContainer2" style="background-color: blueviolet;color: rgb(8, 240, 77);">222</div>
+    <div id="myContainer3" style="background-color: rgb(95, 27, 36);color: rgb(201, 221, 22);">333</div>
+    <div id="myContainer4" style="background-color: rgb(186, 226, 43);color: rgb(139, 26, 18);">444</div>
+    <a style="background-color: rgb(51, 218, 73); color: rgb(255, 0, 234);">555</a>
+    <a style="background-color: rgb(201, 218, 51); color: rgb(0, 153, 255);">666</a>
+    <input type="text" style="background-color: bisque;">
+</body>
+
+
+<script>
+
+// usage
+var $ = query2selector();
+var obj = $("div");
+console.log("divs:", obj.size());
+
+// class
+$("#myContainer1").class("class1 class2")
+$("#myContainer1").addClass("name3")
+$("#myContainer1").delClass("name2")
+console.log("classes:", $("#myContainer1").class())
+
+$("#myContainer1").style("color", "red");
+
+// attribute
+$("#myContainer1").attr("attr_name", "another_id");
+
+// insert node
+$("#myContainer1").before("<button>before</button>")
+$("#myContainer1").append("<button>append</button>")
+
+// set content
+$("#myContainer2").html("<b>BOLD</b>");
+
+// plain text
+$("#myContainer3").text("<button>BTN</button>")
+
+// value
+$("input").value("testValue...");
+
+$("#myContainer4").listen("click", function(i, node, event) {
+    alert("you are clicking:" + node);
+})
+
+</script>
+</html>
