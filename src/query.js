@@ -1,6 +1,5 @@
 
 /**
- * https://krasimirtsonev.com/blog/article/Javascript-template-engine-in-just-20-line
  * simple node tool 
  * @returns selector func
  */
