@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="box"></div>
+</body>
+
+<script>
+
+var cursor = 0;
+var results = [];
+
+function parseLine(line) {
+    // 
+    if (line.startsWith("#")) {
+        var r = /(#+)(.+)/g.exec(line);
+        return "<h" + String(r[1].length) + ">" + r[2].trim() + "</h" + String(r[1].length) + ">";
+    }
+    //
+    if (line.startsWith("![")) {
+        var r = /^!\[(.*)\]\((.*)\)/g.exec(line);
+        return "<img src='" + r[2] + "' alt='" + r[1] + "'>";
+    }
+    //
+    if (line.startsWith("[")) {
+        var r = /^\[(.*)\]\((.*)\)/g.exec(line);
+        return "<a href='" + r[2] + "'>" + r[1] + "</a>";
+    }
+    //
+    if (line.replace(/\s\s+/g, '').match(/^\*{3,}|\-{3,}|\_{3,}/g)) {
+        return "<hr>";
+    }
+    //
+    if (line.startsWith(">")) {
+        var r = /^>(.*)/g.exec(line);
+        return "<div>" + r[1] + "</div>";
+    }
+    //
+    if (line.length > 0) {
+        return "<p>" +line + "</a>";
+    }
+}
+
+function parseLines(lines) {
+    while (cursor < lines.length) {
+        var line = lines[cursor].trim();
+        var consume = false;
+        //
+        if (line.startsWith("```")) {
+            // code
+            results.push("<xmp>");
+            cursor = cursor + 1;
+            while (!lines[cursor].trim().startsWith("```")) {
+                results.push(lines[cursor]);
+                cursor++;
+            }
+            results.push("</xmp>");
+        } else if (line.match(/^[\*\-\+] (.*)/g)) {
+            // list
+            results.push("<ul>");
+            var r = /^[\*\-\+](.*)/g.exec(lines[cursor]);
+            while (r) {
+                results.push("<li>" + r[1] + "</li>");
+                cursor++;
+                r = /^[\*\-\+](.*)/g.exec(lines[cursor]);
+            }
+            results.push("</ul>");
+        } else if (line.startsWith("|")) {
+            // table
+            var row = 0;
+            results.push("<table>");
+            var r = /^[\|](.*)/g.exec(lines[cursor]);
+            while (r) {
+                row++;
+                results.push("<tr>");
+                var arr = r[0].split("|");
+                for (var i = 1; i < arr.length - 1; i++) {
+                    if (row == 1) {
+                        results.push("<th>" + arr[i].trim() + "</th>");
+                    } else {
+                        results.push("<td>" + arr[i].trim() + "</td>");
+                    }
+                }
+                results.push("<tr>");
+                cursor++;
+                r = /^[\|](.*)/g.exec(lines[cursor]);
+            }
+            results.push("</table>");
+        } else if (line.length == 0) {
+            // wrap
+            while (lines[cursor + 1].length == 0) {
+                cursor++;
+                results.push("<br>");
+            }
+        } else {
+            var result = parseLine(line);
+            if (result) results.push(result);
+        }
+        //
+        cursor = cursor + 1;
+    }
+    return results;
+}
+
+function mark2html(str)
+{
+    var lines = str.trim().split(/\r?\n\r?/);
+    var results = parseLines(lines);
+    return results.join("\n");
+}
+
+</script>
+
+<script>
+    fetch('./markdown.md').then(response => {
+        return response.text();
+    })
+    .then(response => {
+        var r = mark2html(response);
+        document.querySelector("#box").innerHTML = r;
+    })
+    .catch(err => console.log('Request Failed', err)); 
+</script>
+</html>
