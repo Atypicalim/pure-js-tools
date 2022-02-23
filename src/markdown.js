@@ -38,7 +38,7 @@ function markdown2html(content)
     function parseLine(line) {
         // title
         var r = /^(#+)(.+)/g.exec(line);
-        if (r) return "<h" + String(r[1].length) + ">" + parseSentence(r[2]) + "</h" + String(r[1].length) + ">";
+        if (r) return "<h" + String(r[1].length) + ">" + parseSentence(r[2].trim()) + "</h" + String(r[1].length) + ">";
         // block
         var r = /^>(.*)/g.exec(line);
         if (r) return "<div>" + parseSentence(r[1]) + "</div>";

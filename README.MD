@@ -22,6 +22,15 @@ var obj = $("div");
 obj.style("color", "blue");
 ```
 
+3. markdown
+
+```javascript
+var mark = "## title text";
+var html = markdown2html(mark);
+console.log(html);
+// <h2>title text</h2>
+```
+
 ---
 
 > for more feture plz read the source code ...
