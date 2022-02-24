@@ -1,3 +1,8 @@
+---
+title: comment
+date: 0000-00-00 00:00:00
+---
+
 ## Title
 
 ### test title

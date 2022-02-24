@@ -43,8 +43,8 @@ function markdown2html(content)
         var r = /^>(.*)/g.exec(line);
         if (r) return "<div>" + parseSentence(r[1]) + "</div>";
         // newline
-        var r = /^([\*\-\_]{3,})(\s*)/g.exec(line);
-        if (r) return "<hr>" + parseSentence(r[2]);
+        var r = /^([\*\_]{3,})/g.exec(line);
+        if (r) return "<hr>";
         // paragraph
         if (line.length > 0) return "<p>" + parseSentence(line) + "</p>";
     }
@@ -53,7 +53,13 @@ function markdown2html(content)
     var results = [];
     while (cursor < lines.length) {
         var line = lines[cursor].trim();
-        if (line.startsWith("```")) {
+        if (cursor == 0 && line.match(/^[\-]{3}/g)) {
+            // comment
+            while (lines[cursor + 1] != undefined && !lines[cursor + 1].match(/^[\-]{3}/g)) {
+                cursor++;
+            }
+            cursor++;
+        } else if (line.startsWith("```")) {
             // code
             results.push("<xmp>");
             cursor = cursor + 1;
@@ -91,7 +97,7 @@ function markdown2html(content)
             results.push("</table>");
         } else if (line.length == 0) {
             // wrapline
-            while (lines[cursor + 1].length == 0) {
+            while (lines[cursor + 1] != undefined && lines[cursor + 1].length == 0) {
                 cursor++;
                 results.push("<br>");
             }
