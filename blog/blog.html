@@ -12,22 +12,43 @@
 <body>
     <div id="box"></div>
 </body>
+
+<script type="text/html" id="templateLoading">
+    <div>Loading...</div>
+</script>
+
+<script type="text/html" id="templateEmpty">
+    <div>Empty!</div>
+</script>
+
 <script type="text/javascript">
 
-    var herokuApi = "https://cors-anywhere.herokuapp.com/"
+    var $ = query2selector();
+    var herokuApi = "https://cors-anywhere.herokuapp.com/";
     var githubApi = herokuApi + "http://api.github.com/";
     var blogConfig = null;
+    var blogData = null;
+    var categories = new Set();
+    var tags = new Set();
+    var years = new Set();
+    var months = new Set();
+    var days = new Set();
+    var authors = new Set();
 
     // get config
+    $("#box").html($("#templateLoading").text());
+    console.log("get config");
     fetch('./config.json')
     .then(response => { return response.json(); })
     .then(response => {
         blogConfig = response;
+        console.log("get list");
         return fetch(githubApi + "repos/" + blogConfig.github_user + "/" + blogConfig.github_repo + "/contents/" + blogConfig.github_path)
     })
     // get list
     .then(response => { return response.json(); })
     .then(response => {
+        console.log("filter list");
         var files = [];
         for (let i = 0; i < response.length; i++) {
             const item = response[i];
@@ -39,28 +60,33 @@
     })
     // downlaod files
     .then(fileInfos => {
+        console.log("downlaod files");
         var newInfos = [];
         var maxIndex = fileInfos.length;
         var curIndex = -1;
         function check(loop, callback) {
             var newItem = fileInfos[curIndex];
+            console.log("check", curIndex);
             var oldItem = localStorage.getItem(newItem.url)
             if (typeof oldItem === 'string' || oldItem instanceof String) oldItem = JSON.parse(oldItem)
             if (oldItem && oldItem.blog_content && oldItem.sha == newItem.sha) {
+                console.log("cached", curIndex);
                 newInfos.push(oldItem);
                 loop(callback);
                 return;
             }
+            console.log("downloading", curIndex);
             fetch(newItem.download_url)
             .then(response => { return response.text(); })
             .then(response => {
                 newItem.is_ready = false;
-                newItem.blog_content = response.substring(0, Math.min(1024, response.length));
+                newItem.blog_content = response.substring(0, Math.min(1024 * 5, response.length));
                 localStorage.setItem(newItem.url, JSON.stringify(newItem));
                 newInfos.push(newItem);
                 window.setTimeout(() => {
                     loop(callback);
                 }, 1000);
+                console.log("downloaded", curIndex);
             })
             .catch(err => console.log('download failed, err:', err));
         }
@@ -81,22 +107,80 @@
     })
     // parse file
     .then(response => {
+        console.log("parse files");
         function parse(index, info) {
-            console.log(index, info);
+            console.log("parse", index);
             if (info.is_ready) return;
             var content = info.blog_content;
             var lines = content.trim().split(/\r?\n\r?/);
-            var title = lines[0].trim().substring(1);
-            info.blog_title = title;
+            //
+            var isComment = false;
+            for (let i = 0; i < lines.length; i++) {
+                var line = lines[i].toLowerCase().trim();
+                if (!isComment && line == "---") {
+                    isComment = true;
+                    continue;
+                } else if (isComment && line == "---") {
+                    isComment = false;
+                    continue;
+                }
+                console.log("line" , i, isComment, line);
+                if (isComment) {
+                    var r = /^\s*date\s*:\s*(\d{4})[\/\-](\d{2})[\/\-](\d{2})/g.exec(line);
+                    if (r) {
+                        info.blog_year = r[1];
+                        info.blog_month = r[1] + "-" + r[2];
+                        info.blog_day = r[1] + "-" + r[2] + "-" + r[3];
+                        years.add(info.blog_year);
+                        months.add(info.blog_month);
+                        days.add(info.blog_day);
+                    }
+                    r = /^\s*author\s*:\s*(.+)/g.exec(line);
+                    if (r) {
+                        info.blog_author = r[1];
+                        authors.add(info.blog_author);
+                    }
+                    r = /^\s*category\s*:\s*(.+)/g.exec(line);
+                    if (r) {
+                        info.blog_category = r[1];
+                        categories.add(info.blog_category);
+                    }
+                    r = /^\s*tag[s]?\s*:\s*(.+)/g.exec(line);
+                    if (r) {
+                        var tags = r[1].split(",");
+                        info.blog_tags = new Set();
+                        for (let index = 0; index < tags.length; index++) {
+                            const tag = tags[index].toLowerCase().trim();
+                            info.blog_tags.add(tag);
+                            tags.add(tag);
+                        }
+                    }
+                } else {
+                    if (line.length > 0 && info.blog_title == undefined) {
+                        info.blog_title = line.trim().replace(/#+/g, '');
+                    }
+                }
+            }
+            // TODO: check
+            console.log("parsed", index, info);
+            //
         }
         for (let i = 0; i < response.length; i++) {
             parse(i, response[i]);
         }
-        return response;
+        return [];
     })
     // render blog
     .then(response => {
-        var blog = response[1];
+        console.log("rendeing main page");
+        if (response.length <= 0) {
+            $("#box").html($("#templateEmpty").text());
+        } else {
+            blogData = response;
+
+        }
+        var blog = response[0];
+        if (!blog) return;
         document.title = blog.blog_title;
         var r = markdown2html(blog.blog_content);
         document.querySelector("#box").innerHTML = r;
