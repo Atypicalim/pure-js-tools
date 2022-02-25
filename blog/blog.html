@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://raw.githack.com/kompasim/pure-js-tools/master/src/query.js"></script>
+    <script src="https://raw.githack.com/kompasim/pure-js-tools/master/src/template.js"></script>
+    <script src="https://raw.githack.com/kompasim/pure-js-tools/master/src/markdown.js"></script>
+</head>
+<body>
+    <div id="box"></div>
+</body>
+<script type="text/javascript">
+
+    var herokuApi = "https://cors-anywhere.herokuapp.com/"
+    var githubApi = herokuApi + "http://api.github.com/";
+    var blogConfig = null;
+
+    // get config
+    fetch('./config.json')
+    .then(response => { return response.json(); })
+    .then(response => {
+        blogConfig = response;
+        return fetch(githubApi + "repos/" + blogConfig.github_user + "/" + blogConfig.github_repo + "/contents/" + blogConfig.github_path)
+    })
+    // get list
+    .then(response => { return response.json(); })
+    .then(response => {
+        var files = [];
+        for (let i = 0; i < response.length; i++) {
+            const item = response[i];
+            if (item.type == "file" && item.path.toUpperCase().endsWith("MD")) {
+                files.push(item);
+            }
+        }
+        return files;
+    })
+    // downlaod files
+    .then(fileInfos => {
+        var newInfos = [];
+        var maxIndex = fileInfos.length;
+        var curIndex = -1;
+        function check(loop, callback) {
+            var newItem = fileInfos[curIndex];
+            var oldItem = localStorage.getItem(newItem.url)
+            if (typeof oldItem === 'string' || oldItem instanceof String) oldItem = JSON.parse(oldItem)
+            if (oldItem && oldItem.blog_content && oldItem.sha == newItem.sha) {
+                newInfos.push(oldItem);
+                loop(callback);
+                return;
+            }
+            fetch(newItem.download_url)
+            .then(response => { return response.text(); })
+            .then(response => {
+                newItem.is_ready = false;
+                newItem.blog_content = response.substring(0, Math.min(1024, response.length));
+                localStorage.setItem(newItem.url, JSON.stringify(newItem));
+                newInfos.push(newItem);
+                window.setTimeout(() => {
+                    loop(callback);
+                }, 1000);
+            })
+            .catch(err => console.log('download failed, err:', err));
+        }
+        function loop(callback) {
+            curIndex++;
+            if (curIndex < maxIndex) {
+                check(loop, callback);
+            } else {
+                callback();
+            }
+        }
+        var promise = new Promise(function(resolve, reject){
+            loop(function() {
+                resolve(newInfos);
+            });
+        });
+        return promise;
+    })
+    // parse file
+    .then(response => {
+        function parse(index, info) {
+            console.log(index, info);
+            if (info.is_ready) return;
+            var content = info.blog_content;
+            var lines = content.trim().split(/\r?\n\r?/);
+            var title = lines[0].trim().substring(1);
+            info.blog_title = title;
+        }
+        for (let i = 0; i < response.length; i++) {
+            parse(i, response[i]);
+        }
+        return response;
+    })
+    // render blog
+    .then(response => {
+        var blog = response[1];
+        document.title = blog.blog_title;
+        var r = markdown2html(blog.blog_content);
+        document.querySelector("#box").innerHTML = r;
+    })
+    //
+    .then(response => {
+        console.log("END!");
+        console.log(blogConfig);
+    })
+    .catch(err => console.log('fetch failed, err:', err)); 
+
+    
+
+</script>
+</html>
