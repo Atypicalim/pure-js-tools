@@ -1,9 +1,11 @@
----
-title: comment
-date: 0000-00-00 00:00:00
----
-
 ## Title
+
+---
+date: 0000-00-00 00:00:00
+author: kompasim
+category: javascript
+tag: js, blog, markdown
+---
 
 ### test title
 
