@@ -19,7 +19,6 @@ let style = {
     background: "{0}",
     font_size: "{1}px",
 }
-let renderer = style2renderer(style);
 let size = 24;
 let color = "#112233";
 
@@ -29,7 +28,11 @@ window.addEventListener('load', () => {
     proxy.setContentEditable(true);
     setInterval(() => {
         size++;
-        node.style = renderer(color, size);
+        let text = style2text(style, color, size);
+        console.log(text);
+        let stly = text2style(text);
+        console.log(stly);
+        node.style = text;
     }, 100);
 })
 

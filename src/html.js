@@ -10,7 +10,7 @@
     let lines = [];
     Object.keys(map).forEach((it) => {
         let val = map[it];
-        let key = it.replace(/_/g, '-');
+        let key = it.replace('_', '-');
         lines.push(`${key}: ${val}`);
     });
     let text = lines.join(';');
@@ -37,7 +37,8 @@ var text2style = (text) => {
         let parts = line.split(":");
         if (parts.length != 2) return;
         let [left, right] = parts;
-        style[left] = right;
+        let key = left.replace('-', '_');
+        style[key] = right;
     })
     return style;
 }
