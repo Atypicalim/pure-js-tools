@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="shortcut icon" href="#">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/vanjs-org/van/public/van-1.2.8.nomodule.js"></script>
+<script type="text/javascript" src="../src/constants.js"></script>
+<script type="text/javascript" src="../src/javascript.js"></script>
+<script type="text/javascript" src="../src/html.js"></script>
+<script type="text/javascript" src="../src/van.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script>
+
+const TestComponent = () => {
+
+    const size = van.state(16)
+    const color = van.state("black")
+
+    return span(
+        "Size: ",
+        input({
+            type: "range",
+            min: 10,
+            max: 36,
+            value: size,
+            oninput: e => size.val = e.target.value
+        }),
+        " Color: ",
+        select({
+            oninput: e => color.val = e.target.value,
+            value: color
+        }, ["black", "blue", "green", "red", "brown"].map(c => {
+            return option({value: c}, c)
+        }),),
+        span({
+            class: "test",
+            style: () => {
+                return van.style({
+                    color: "{0}",
+                    background: "green",
+                    font_size: "{1}px",
+                }, color, size)
+            },
+        }, " Hello 🍦VanJS"),
+    )
+}
+
+window.addEventListener('load', () => {
+    van.add(document.body, TestComponent());
+})
+
+</script>
+<body>
+</body>
+</html>

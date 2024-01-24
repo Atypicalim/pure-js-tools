@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="shortcut icon" href="#">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/vanjs-org/van/public/van-1.2.8.nomodule.js"></script>
+<script type="text/javascript" src="../src/constants.js"></script>
+<script type="text/javascript" src="../src/javascript.js"></script>
+<script type="text/javascript" src="../src/html.js"></script>
+<script type="text/javascript" src="../src/van.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script>
+
+let style = {
+    color: "#22ff33",
+    background: "{0}",
+    font_size: "{1}px",
+}
+let renderer = style2renderer(style);
+let size = 24;
+let color = "#112233";
+
+window.addEventListener('load', () => {
+    let node = document.getElementsByTagName("p")[0];
+    let proxy = node2proxy(node);
+    proxy.setContentEditable(true);
+    setInterval(() => {
+        size++;
+        node.style = renderer(color, size);
+    }, 100);
+})
+
+</script>
+<body>
+    <p>html...</p>
+</body>
+</html>
