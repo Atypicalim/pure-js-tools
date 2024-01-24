@@ -31,6 +31,19 @@ console.log(html);
 // <h2>title text</h2>
 ```
 
+4. style
+
+```javascript
+var style = {
+    color: "{0}",
+    font_size: "{1}px",
+}
+let renderer = style2renderer(style);
+let text = renderer("#00ff00", 16);
+console.log(text);
+// color: #00ff00; font-size: 16px
+```
+
 ---
 
 > for more feture plz read the source code ...
