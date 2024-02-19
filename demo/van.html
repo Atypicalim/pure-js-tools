@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="shortcut icon" href="#">
+<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/vanjs-org/van/public/van-1.2.8.nomodule.js"></script> -->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script>
+
+////////////////////////////////////////////////////////////////////////////////
+
+(() => {
+  // van.js
+  var Obj = Object;
+  var _undefined;
+  var protoOf = Obj.getPrototypeOf;
+  var doc = document;
+  var changedStates;
+  var curDeps;
+  var gcCycleInMs = 1e3;
+  var statesToGc;
+  var propSetterCache = {};
+  var funcProto = protoOf(protoOf);
+  var addAndScheduleOnFirst = (set, s, f, waitMs) => {
+    return (set ?? (setTimeout(f, waitMs), new Set())).add(s);
+  }
+
+  var stateProto = {
+    get val() {
+      curDeps?.add(this);
+      return this._val;
+    },
+    get oldVal() {
+      curDeps?.add(this);
+      return this._oldVal;
+    },
+    set val(v) {
+      let s = this;
+      if (v !== s._val) {
+        s._val = v;
+        changedStates = addAndScheduleOnFirst(changedStates, s, updateDoms);
+      }
+    }
+  };
+  var state = (initVal) => ({
+    __proto__: stateProto,
+    _val: initVal,
+    _oldVal: initVal,
+    _bindings: [],
+  });
+  var isState = (s) => protoOf(s ?? 0) === stateProto;
+  var val = (s) => isState(s) ? s.val : s;
+  var oldVal = (s) => isState(s) ? s.oldVal : s;
+
+  var _ = (f) => (f._isBindingFunc = 1, f);
+  var update = (dom, newDom) => newDom ? newDom !== dom && dom.replaceWith(newDom) : dom.remove();
+  var updateDoms = () => {
+    let changedStatesArray = [...changedStates].filter((s) => s._val !== s._oldVal);
+    changedStates = _undefined;
+    for (let b of new Set(changedStatesArray.flatMap((s) => s._bindings)))
+      update(b._dom, bind(b.f, b._dom)), b._dom = _undefined;
+    for (let s of changedStatesArray)
+      s._oldVal = s._val;
+  };
+
+  
+  var runAndCaptureDeps = (f, deps, arg) => {
+    curDeps = deps;
+    try {
+      return f(arg);
+    } catch (e) {
+      console.error(e);
+      return arg;
+    } finally {
+      curDeps = null;
+    }
+  };
+  var bind = (f, dom) => {
+    let deps = new Set();
+    let binding = { f };
+    let newDom = runAndCaptureDeps(f, deps, dom);
+    newDom = (newDom ?? doc).nodeType ? newDom : new Text(newDom);
+    for (let d of deps) {
+      d._bindings.push(binding);
+    }
+    return binding._dom = newDom;
+  };
+  var add = (dom, ...children) => {
+    for (let c of children.flat(Infinity)) {
+      let protoOfC = protoOf(c ?? 0);
+      let child = protoOfC === funcProto ? bind(c) : c;
+      if (child != _undefined) dom.append(child);
+    }
+    return dom;
+  };
+
+  var van_default = { add, _, state, val, oldVal };
+  window.van = van_default;
+})();
+
+////////////////////////////////////////////////////////////////////////////////
+
+const size = van.state(99)
+
+setTimeout(() => {
+  size.val++;
+}, 1000);
+
+window.addEventListener('load', () => {
+    van.add(document.body, () => size.val);
+    // 
+});
+
+</script>
+<body>
+</body>
+</html>
