@@ -37,13 +37,7 @@ const TestComponent = () => {
         }),),
         span({
             class: "test",
-            style: () => {
-                return van.style({
-                    color: "{0}",
-                    background: "green",
-                    font_size: "{1}px",
-                }, color, size)
-            },
+            style: () => `color:${color.val}; font-size: ${size.val}px;`,
         }, " Hello 🍦VanJS"),
     )
 }
