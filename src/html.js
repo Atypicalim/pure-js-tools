@@ -75,7 +75,10 @@ let _style_functions = {
         let style = text2style(text);
         // proxy: listen style change and update node
         return style;
-    }
+    },
+    delStyle: (node) => {
+        node.style += "all: initial;";
+    },
 }
 
 var node2proxy = function(node) {
@@ -96,3 +99,115 @@ var node2proxy = function(node) {
     node.proxy = proxy;
     return proxy;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+// node
+
+let _myNodeIdx = 0;
+let _usedIdsMap = {};
+let _myNodeAct = {
+    img(node, args) {
+        node.setAttribute('src', args.src || "");
+        node.setAttribute('alt', args.src || "...");
+    },
+    button(node, args) {
+        node.setAttribute('type', args.type || "button")
+    }
+}
+let is_nil = (val) => val == null;
+let is_num = (val) => typeof val == 'number';
+let is_str = (val) => typeof val == 'string';
+let is_dom = (val) => val instanceof Node;
+let is_arr = (val) => Array.isArray(val);
+let is_obj = (val) => !is_arr(val) && !is_dom(val) && typeof val == 'object';
+let assert = (val, msg) => { if (!val) throw new Error(msg); }
+let to_str = (val) => is_str(val) ? val : JSON.stringify(val);
+let ar_str =(val, separator) => val.flat().join(separator)
+
+let __node = (tag, arg1, arg2, arg3, ...children) => {
+    // 
+    let args = {};
+    let styl = {};
+    let childs = [];
+    if (is_obj(arg1) && is_obj(arg2)) {
+        args = arg1;
+        styl = arg2;
+        childs = (is_arr(arg3) ? arg3 : [arg3]); childs.push(...children);
+    } else if (is_obj(arg1)) {
+        args = arg1;
+        childs = (is_arr(arg2) ? arg2 : [arg2]); childs.push(arg3, ...children);
+    } else {
+        childs = (is_arr(arg1) ? arg1 : [arg1]); childs.push(arg2, arg3, ...children);
+    }
+    // 
+    _myNodeIdx++;
+    let node = document.createElement(tag);
+    let id = args.id != null ? `${args.id}` : `my_id_${_myNodeIdx}`;
+    let cls = is_arr(args.class) ? ar_str(args.class, " ") : to_str(args.class);
+    assert(_usedIdsMap[id] == null, `duplicated id for node: ${args}`);
+    node.setAttribute('id', id);
+    node.setAttribute('class', cls);
+    // 
+    let styArgs = is_str(args.style) ? args.style : style2text(args.style);
+    let styStyl = style2text(styl);
+    let styAlll = styArgs + ";" + styStyl;
+    console.log("style:", tag, styAlll);
+    node.setAttribute('style', styAlll);
+    //
+    childs.forEach((child) => {
+        if (is_nil(child)) return;
+        if (is_str(child)) child = document.createTextNode(child);
+        node.appendChild(child)
+    })
+    //
+    Object.keys(args).forEach((key) => {
+        if (!['id', 'class', 'style'].includes(key)) {
+            node.setAttribute(key, args[key]);
+        }
+    })
+    //
+    if (_myNodeAct[tag]) _myNodeAct[tag](node, args);
+    _usedIdsMap[id] = true;
+    return node;
+}
+
+let tags = new Proxy((name, ...args) => {
+    return __node(name, ...args);
+}, {
+    get: (target, name) => {
+        return target.bind(null, name);
+    }
+})
+
+////////////////////////////////////////////////////////////////////////////
+
+let _myStyleId = "my_style";
+let _html_function = (args, func) => {
+    let _obj = {}
+    _obj.addStyle = (selector, info) => {
+        let style = style2text(info);
+        let text = `${name} {\n${style}\n}`;
+        document.getElementById(_myStyleId).innerHTML += text;
+    }
+    _obj.getStyle = (selector, key) => {
+        const element = document.querySelector(selector);
+        const style = window.getComputedStyle(element);
+        return key != undefined ? style.getPropertyValue(key) : style;
+    }
+    _obj.delStyle = (selector) => {
+        let text = `${name} {\nall: initial;\n}`;
+        document.getElementById(_myStyleId).innerHTML += text;
+    }
+    _obj.addStyles = (map) => {
+        Object.keys(map).forEach((key) => _obj.addStyle(key, map[key]));
+    }
+    _obj.setStyles = (map) => {
+        document.querySelectorAll(`style[id="${_myStyleId}"]`).forEach(e => e.remove());
+        document.head.insertAdjacentHTML("beforeend", `<style id="${_myStyleId}"></style>`);
+        _obj.addStyles(map);
+    }
+    return _obj;
+}
+
+

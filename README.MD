@@ -44,6 +44,26 @@ console.log(text);
 // color: #00ff00; font-size: 16px
 ```
 
+5. State
+
+```javascript
+let state = new State((prxy, isWrite, key) => {
+    console.log("changed:", isWrite, key);
+})
+let proxy = state({
+    a: "aaa",
+    b: {c: "ccc"}
+});
+console.log("before:", proxy.b.c());
+proxy.b.c = "c..."
+console.log("after:", proxy.b.c());
+// changed: false b.c
+// before: ccc
+// changed: true b.c
+// changed: false b.c
+// after: c...
+```
+
 ---
 
 > for more feture plz read the source code ...
