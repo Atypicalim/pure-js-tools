@@ -106,6 +106,7 @@ var node2proxy = function(node) {
 
 let _myNodeIdx = 0;
 let _usedIdsMap = {};
+let _listenArrays = [];
 let _myNodeAct = {
     img(node, args) {
         node.setAttribute('src', args.src || "");
@@ -115,26 +116,30 @@ let _myNodeAct = {
         node.setAttribute('type', args.type || "button")
     }
 }
-let is_nil = (val) => val == null;
-let is_num = (val) => typeof val == 'number';
-let is_str = (val) => typeof val == 'string';
-let is_dom = (val) => val instanceof Node;
-let is_arr = (val) => Array.isArray(val);
-let is_obj = (val) => !is_arr(val) && !is_dom(val) && typeof val == 'object';
-let assert = (val, msg) => { if (!val) throw new Error(msg); }
-let to_str = (val) => is_str(val) ? val : JSON.stringify(val);
-let ar_str =(val, separator) => val.flat().join(separator)
+
+let __fresh = () => {
+    for (let i = _listenArrays.length - 1; i >= 0; i--) {
+        const element = _listenArrays[i];
+        const node = element[0];
+        const func = element[1];
+        const rslt = func();
+        const temp = is_dom(rslt) ? rslt : document.createTextNode(rslt);
+        node.replaceWith(temp);
+        element[0] = temp;
+    }
+    _listenArrays = _listenArrays.filter((element) => element.length == 2 || element[0].parentNode != null)
+}
 
 let __node = (tag, arg1, arg2, arg3, ...children) => {
     // 
     let args = {};
     let styl = {};
     let childs = [];
-    if (is_obj(arg1) && is_obj(arg2)) {
+    if (is_object(arg1) && is_object(arg2)) {
         args = arg1;
         styl = arg2;
         childs = (is_arr(arg3) ? arg3 : [arg3]); childs.push(...children);
-    } else if (is_obj(arg1)) {
+    } else if (is_object(arg1)) {
         args = arg1;
         childs = (is_arr(arg2) ? arg2 : [arg2]); childs.push(arg3, ...children);
     } else {
@@ -152,18 +157,29 @@ let __node = (tag, arg1, arg2, arg3, ...children) => {
     let styArgs = is_str(args.style) ? args.style : style2text(args.style);
     let styStyl = style2text(styl);
     let styAlll = styArgs + ";" + styStyl;
-    console.log("style:", tag, styAlll);
     node.setAttribute('style', styAlll);
     //
     childs.forEach((child) => {
         if (is_nil(child)) return;
         if (is_str(child)) child = document.createTextNode(child);
+        if (is_fun(child)) {
+            let func = child;
+            let rslt = func();
+            let node = is_dom(rslt) ? rslt : document.createTextNode(rslt);
+            _listenArrays.push([node, func]);
+            child = node;
+        }
         node.appendChild(child)
     })
     //
     Object.keys(args).forEach((key) => {
-        if (!['id', 'class', 'style'].includes(key)) {
-            node.setAttribute(key, args[key]);
+        let val = args[key];
+        if (!is_str(key)) {
+            return;
+        } else if (key.toLowerCase().startsWith("on") && is_fun(val)) {
+            node[key.toLowerCase()] = val;
+        } else if (!['id', 'class', 'style'].includes(key)) {
+            node.setAttribute(key, val);
         }
     })
     //
@@ -173,6 +189,7 @@ let __node = (tag, arg1, arg2, arg3, ...children) => {
 }
 
 let tags = new Proxy((name, ...args) => {
+    if (name == null) return __fresh();
     return __node(name, ...args);
 }, {
     get: (target, name) => {

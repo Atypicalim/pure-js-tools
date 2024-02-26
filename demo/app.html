@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <link rel="shortcut icon" href="#">
-<script type="text/javascript" src="http://localhost:9999/src/html.js"></script>
-<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/vanjs-org/van/public/van-1.2.8.nomodule.js"></script> -->
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script type="text/javascript" src="http://localhost:9999/src/javascript.js"></script>
+    <script type="text/javascript" src="http://localhost:9999/src/html.js"></script>
+    <script type="text/javascript" src="http://localhost:9999/src/state.js"></script>
 </head>
+<body style="background: #222222;">
+</body>
 <script>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,6 +20,19 @@ const { div, span, p, h1, h2, h3, h4, h5, img, button, br, hr } = tags;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+let state = new State((prxy, isWrite, key) => {
+    console.log("changed:", isWrite, key, prxy.msg());
+    if (isWrite) {
+        setTimeout(() => {
+            tags();
+        }, 100);
+    }
+})
+let proxy = state({
+    msg: "message...",
+    show: true,
+});
+console.log("before:", proxy.msg, proxy());
 
 let node = div(
     {
@@ -39,17 +54,25 @@ let node = div(
         img({
             src: "https://psc2.cf2.poecdn.net/assets/_next/static/media/assistant.b077c338.svg"
         }),
-        br(),
-        br(),
-        br(),
+        hr(),
+        () => proxy.msg(),
+        hr(),
         div({
             id: "myid",
         }, [
             img(),
             img(),
         ]),
-        h1("button"),
-        button("Button"),
+        hr(),
+        h5("button"),
+        button({
+            style: {
+                color: "red",
+            },
+            onClick: () => {
+                proxy.msg = String(Date.now());
+            }
+        }, "Button"),
     ],
 );
 console.log("node", node);
@@ -58,11 +81,5 @@ window.addEventListener('load', () => {
     document.body.appendChild(node);
 });
 
-
-
 </script>
-
-<body style="background: #222222;">
-</body>
-
 </html>
