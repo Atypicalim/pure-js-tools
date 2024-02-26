@@ -21,7 +21,7 @@ const { div, span, p, h1, h2, h3, h4, h5, img, button, br, hr } = tags;
 ////////////////////////////////////////////////////////////////////////////////
 
 let state = new State((prxy, isWrite, key) => {
-    console.log("changed:", isWrite, key, prxy.msg());
+    console.log("changed:", isWrite, key, prxy[key]);
     if (isWrite) {
         setTimeout(() => {
             tags();
@@ -33,6 +33,12 @@ let proxy = state({
     show: true,
 });
 console.log("before:", proxy.msg, proxy());
+
+let content = div(
+    p("begin: "),
+    proxy.msg,
+    p(" END!"),
+)
 
 let node = div(
     {
@@ -55,7 +61,7 @@ let node = div(
             src: "https://psc2.cf2.poecdn.net/assets/_next/static/media/assistant.b077c338.svg"
         }),
         hr(),
-        () => proxy.msg(),
+        content,
         hr(),
         div({
             id: "myid",
@@ -71,6 +77,9 @@ let node = div(
             },
             onClick: () => {
                 proxy.msg = String(Date.now());
+                proxy.show = !proxy.show();
+                content.style.display = proxy.show() ? "block" : "none";
+                console.log(content);
             }
         }, "Button"),
     ],
