@@ -1,6 +1,6 @@
 ---
 date: 0000-00-00 00:00:00
-author: kompasim
+author: atypicalim
 category: javascript
 tag: js, blog, markdown
 ---
