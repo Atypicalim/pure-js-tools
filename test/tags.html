@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="shortcut icon" href="#">
+<script type="text/javascript" src="../src/constants.js"></script>
+<script type="text/javascript" src="../src/javascript.js"></script>
+<script type="text/javascript" src="../src/tags.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script>
+
+const TestComponent = () => {
+
+    return span(
+        img("https://www.runoob.com/wp-content/themes/runoob/assets/img/runoob-logo.png"),
+        "Size:",
+        input({
+            type: "range",
+            min: 10,
+            max: 36,
+            value: 24,
+            oninput: e => console.log("size", e.target),
+        }),
+        " Color: ",
+        select({
+            oninput: e => console.log("input:", e),
+            value: 1,
+        }, ["black", "blue", "green", "red", "brown"].map(c => {
+            return option(c, {value: c})
+        }),),
+        span({
+            class: "test",
+            style: () => `color:green; font-size: 25px;`,
+        }, " Hello 🍦Tags!"),
+    )
+}
+
+window.addEventListener('load', () => {
+    document.body.innerHTML = '';
+    document.body.appendChild(TestComponent());
+})
+
+</script>
+<body style="background: #555555;">
+</body>
+</html>

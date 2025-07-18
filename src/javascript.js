@@ -15,7 +15,7 @@ let is_arr = (val) => Array.isArray(val);
 
 let is_object = (val) => typeof val == 'object' && !is_arr(val) && !is_dom(val);
 
-let is_simple = (val) => is_nil(val) || is_num(val) || is_bol(val) || is_str(val);
+let is_simple = (val) => is_num(val) || is_bol(val) || is_str(val);
 
 let assert = (val, msg) => { if (!val) throw new Error(`${msg}`); }
 
