@@ -8,15 +8,17 @@
 
 var template2renderer = function(html) {
     var re = /<%([^%>]+)?%>/g;
-    var reExp = /(^( )?(if|for|else|switch|case|break|{|}))(.*)?/g;
+    var reExp = /(^( )+(if|for|else|switch|case|break|{|}))(.*)?/g;
     var code = 'var r=[];\\n';
-    var cursor = 0
+    var cursor = 0;
     var match;
     var add = function(line, js) {
+        line = line.replace(/\'/g, "\\'");
+        line = line.replace(/\n/g, " \\\n");
         if (js) {
             code += line.match(reExp) ? line + '\\n' : 'r.push(' + line + ');\\n';
         } else {
-            code += line != '' ? 'r.push(`' + line.replace(/"/g, '\\"') + '`);\\n' : '';
+            code += line != '' ? 'r.push(\'' + line.replace(/"/g, '\\"') + '\');\\n' : '';
         }
         return add;
     }
