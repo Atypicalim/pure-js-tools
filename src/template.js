@@ -13,11 +13,11 @@ var template2renderer = function(html) {
     var cursor = 0;
     var match;
     var add = function(line, js) {
-        line = line.replace(/\'/g, "\\'");
         line = line.replace(/\n/g, " \\\n");
         if (js) {
             code += line.match(reExp) ? line + '\\n' : 'r.push(' + line + ');\\n';
         } else {
+            line = line.replace(/\'/g, "\\'");
             code += line != '' ? 'r.push(\'' + line.replace(/"/g, '\\"') + '\');\\n' : '';
         }
         return add;
