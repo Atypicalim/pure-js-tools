@@ -2,7 +2,9 @@
 const fs = require('fs');
 const { exec } = require('child_process');
 
-let folder = "./src/"
+let FOLDER_SOURCE = "./src/";
+let FOLDER_BUILD = "./build/";
+
 let orders = [
     "constants",
     "javascript",
@@ -16,7 +18,7 @@ let orders = [
 
 // for (let i = 0; i < orders.length; i++) {
 //     const name = orders[i];
-//     const path = `${folder}${name}.js`
+//     const path = `src/${folder}${name}.js`
 //     const module = require(path);
 //     console.log(path, module);
 // }
@@ -48,14 +50,16 @@ function _execute(command) {
 
 async function _install(name) {
     _print(`installing ${name} ...`);
-    var output = await _execute(`npm install -g ${name}`);
+    var output = await _execute(`npm install ${name}`);
     _print(`installed!\n`);
     return output;
 }
 
 async function _compile(name) {
     _print(`compiling ${name} ...`);
-    var output = await _execute(`npx babel ./src/${name}.js --out-file ./build/${name}.js`);
+    var preset = `--presets babel-preset-es2015`;
+    var outfile = `--out-file ./build/${name}.js`;
+    var output = await _execute(`npx babel ./src/${name}.js ${outfile} ${preset}`);
     _print(`compiled!\n`);
     return output;
 }
@@ -65,8 +69,9 @@ async function initialize() {
     _print(`node:${version}`);
     fs.mkdirSync("./build", { recursive: true });
     await _install("axios");
-    await _execute("npm uninstall -g babel");
+    await _execute("npm uninstall babel");
     await _install("babel-cli");
+    await _install("babel-preset-es2015");
 }
 
 async function compile() {
@@ -76,8 +81,8 @@ async function compile() {
     }
 }
 
-async function merge() {
-    _print(`merging ...`);
+async function merge(folder, target) {
+    _print(`merging ${target} ...`);
     let texts = []
     for (let i = 0; i < orders.length; i++) {
         const name = orders[i];
@@ -89,13 +94,15 @@ async function merge() {
         texts.push(head + "\n" + data);
     }
     let _text = texts.join("\n");
-    fs.writeFileSync('./tools.js', _text, 'utf8');
-    _print(`merged ...`);
+    fs.writeFileSync(target, _text, 'utf8');
+    _print(`merged!\n`);
 }
 
 async function _start() {
     await initialize()
     await compile()
-    // await merge()
+    await merge(FOLDER_SOURCE, "./tools.js")
+    await merge(FOLDER_BUILD, "./tool5.js")
+    _print(`Finish!\n`);
 }
 _start()
