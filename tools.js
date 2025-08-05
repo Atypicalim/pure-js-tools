@@ -1,4 +1,4 @@
-// file:constants 2025-08-05T14:42:07.054Z
+// file:constants 2025-08-05T15:02:24.978Z
 
 
 let ALL_HTML_TAGA = [
@@ -23,7 +23,7 @@ let ALL_HTML_TAGA = [
     "form", "input", "output", "button", "label", "textarea", "select", "option",
     "fieldset", "legend", "optgroup", "datalist", "keygen",
 ];
-// file:javascript 2025-08-05T14:42:07.055Z
+// file:javascript 2025-08-05T15:02:24.979Z
 
 var globalThis = (function() {
     if (typeof globalThis === 'object') {
@@ -96,7 +96,7 @@ if (!String.prototype.replaceAll) {
     };
 }
 
-// file:query 2025-08-05T14:42:07.055Z
+// file:query 2025-08-05T15:02:24.980Z
 
 /**
  * simple node tool 
@@ -268,7 +268,7 @@ if (!String.prototype.replaceAll) {
     return selector;
 }
 
-// file:state 2025-08-05T14:42:07.056Z
+// file:state 2025-08-05T15:02:24.980Z
 
 /**
  * simple state tool 
@@ -379,7 +379,7 @@ let State = function() {
 
 }()
 
-// file:tags 2025-08-05T14:42:07.056Z
+// file:tags 2025-08-05T15:02:24.980Z
 
 /**
  * simple tag tool
@@ -432,7 +432,7 @@ let __tags_stringfy = (val, separator) => {
 let __tags_new_node = (tag, args) => {
     _myNodeIdx++;
     let node = document.createElement(tag);
-    let id = args.id != null ? `${args.id}` : `my_id_${_myNodeIdx}`;
+    let id = `my_id_${_myNodeIdx}`;
     assert(_usedIdsMap[id] == null, `duplicated id for node: ${args}`);
     node.setAttribute('id', id);
     _usedIdsMap[id] = true;
@@ -503,18 +503,20 @@ function __tags_new_tag(name, args) {
     function __customize(args) {
         Object.keys(args).forEach(function (key) {
             var val = args[key];
-            if (!is_str(key) || key == "id") {
+            if (!is_str(key)) {
                 return;
-            } else if (key == "text") {
-                node.innerText = val;
-            } else if (key == "html") {
-                node.innerHTML = val;
+            } else if (key == "id") {
+                node.setAttribute(key, val); 
             } else if (key == "class") {
                 var cls = __tags_stringfy(val);
                 node.setAttribute(key, cls);
             } else if (key == "style") {
                 var sty = __tags_stringfy(val);
                 node.setAttribute(key, sty);
+            } else if (key == "text") {
+                node.innerText = val;
+            } else if (key == "html") {
+                node.innerHTML = val;
             } else if (key.toLowerCase().startsWith("on") && is_fun(val)) {
                 node[key.toLowerCase()] = val;
             } else {
@@ -564,16 +566,18 @@ function __tags_new_tag(name, args) {
     return node;
 }
 
-
-let tags = {};
 // let tags = new Proxy((name, ...args) => {
-//     if (name == null) return __tags_try_fresh();
+//     if (name == null) return 
 //     return __tags_new_tag(name, args);
 // }, {
 //     get: (target, name) => {
 //         return target.bind(null, name);
 //     }
 // })
+
+let tags = function() {
+    return __tags_try_fresh();
+}
 
 ALL_HTML_TAGA.forEach(function(tag) {
     function _tag() {
@@ -583,7 +587,7 @@ ALL_HTML_TAGA.forEach(function(tag) {
     globalThis[tag] = _tag
 });
 
-// file:template 2025-08-05T14:42:07.056Z
+// file:template 2025-08-05T15:02:24.980Z
 
 /**
  * https://krasimirtsonev.com/blog/article/Javascript-template-engine-in-just-20-line
@@ -622,7 +626,7 @@ var template2renderer = function(html) {
     return renderer;
 }
 
-// file:html 2025-08-05T14:42:07.056Z
+// file:html 2025-08-05T15:02:24.980Z
 
 /**
  * simple html tools
@@ -757,7 +761,7 @@ let _html_function = (args, func) => {
 
 
 
-// file:markdown 2025-08-05T14:42:07.056Z
+// file:markdown 2025-08-05T15:02:24.980Z
 
 /**
  * simple markdown to html converter

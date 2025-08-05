@@ -50,7 +50,7 @@ let __tags_stringfy = (val, separator) => {
 let __tags_new_node = (tag, args) => {
     _myNodeIdx++;
     let node = document.createElement(tag);
-    let id = args.id != null ? `${args.id}` : `my_id_${_myNodeIdx}`;
+    let id = `my_id_${_myNodeIdx}`;
     assert(_usedIdsMap[id] == null, `duplicated id for node: ${args}`);
     node.setAttribute('id', id);
     _usedIdsMap[id] = true;
@@ -121,18 +121,20 @@ function __tags_new_tag(name, args) {
     function __customize(args) {
         Object.keys(args).forEach(function (key) {
             var val = args[key];
-            if (!is_str(key) || key == "id") {
+            if (!is_str(key)) {
                 return;
-            } else if (key == "text") {
-                node.innerText = val;
-            } else if (key == "html") {
-                node.innerHTML = val;
+            } else if (key == "id") {
+                node.setAttribute(key, val); 
             } else if (key == "class") {
                 var cls = __tags_stringfy(val);
                 node.setAttribute(key, cls);
             } else if (key == "style") {
                 var sty = __tags_stringfy(val);
                 node.setAttribute(key, sty);
+            } else if (key == "text") {
+                node.innerText = val;
+            } else if (key == "html") {
+                node.innerHTML = val;
             } else if (key.toLowerCase().startsWith("on") && is_fun(val)) {
                 node[key.toLowerCase()] = val;
             } else {
@@ -182,16 +184,18 @@ function __tags_new_tag(name, args) {
     return node;
 }
 
-
-let tags = {};
 // let tags = new Proxy((name, ...args) => {
-//     if (name == null) return __tags_try_fresh();
+//     if (name == null) return 
 //     return __tags_new_tag(name, args);
 // }, {
 //     get: (target, name) => {
 //         return target.bind(null, name);
 //     }
 // })
+
+let tags = function() {
+    return __tags_try_fresh();
+}
 
 ALL_HTML_TAGA.forEach(function(tag) {
     function _tag() {

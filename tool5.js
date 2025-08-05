@@ -1,9 +1,9 @@
-// file:constants 2025-08-05T14:42:07.057Z
+// file:constants 2025-08-05T15:02:24.981Z
 'use strict';
 
 var ALL_HTML_TAGA = ['head', 'title', 'base', 'link', 'meta', 'script', 'style', 'div', 'span', 'p', 'br', 'hr', 'b', 'strong', 'i', 'em', 'mark', 'small', 'del', 'ins', 'sub', 'sup', 'code', 'kbd', 'samp', 'var', 'pre', 'abbr', 'address', 'bdo', 'blockquote', 'cite', 'q', 'a', 'button', 'img', 'map', 'area', 'picture', 'audio', 'video', 'source', 'track', 'canvas', 'svg', 'iframe', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tbody', 'tfoot', 'thead', 'th', 'tr', 'td', 'col', 'colgroup', 'caption', "form", "input", "output", "button", "label", "textarea", "select", "option", "fieldset", "legend", "optgroup", "datalist", "keygen"];
 
-// file:javascript 2025-08-05T14:42:07.057Z
+// file:javascript 2025-08-05T15:02:24.981Z
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -119,7 +119,7 @@ if (!String.prototype.replaceAll) {
     };
 }
 
-// file:query 2025-08-05T14:42:07.057Z
+// file:query 2025-08-05T15:02:24.981Z
 'use strict';
 
 /**
@@ -293,7 +293,7 @@ var query2selector = function query2selector() {
     return selector;
 };
 
-// file:state 2025-08-05T14:42:07.058Z
+// file:state 2025-08-05T15:02:24.982Z
 "use strict";
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -425,7 +425,7 @@ var State = function () {
     });
 }();
 
-// file:tags 2025-08-05T14:42:07.058Z
+// file:tags 2025-08-05T15:02:24.982Z
 "use strict";
 
 /**
@@ -479,7 +479,7 @@ var __tags_stringfy = function __tags_stringfy(val, separator) {
 var __tags_new_node = function __tags_new_node(tag, args) {
     _myNodeIdx++;
     var node = document.createElement(tag);
-    var id = args.id != null ? "" + args.id : "my_id_" + _myNodeIdx;
+    var id = "my_id_" + _myNodeIdx;
     assert(_usedIdsMap[id] == null, "duplicated id for node: " + args);
     node.setAttribute('id', id);
     _usedIdsMap[id] = true;
@@ -552,18 +552,20 @@ function __tags_new_tag(name, args) {
     function __customize(args) {
         Object.keys(args).forEach(function (key) {
             var val = args[key];
-            if (!is_str(key) || key == "id") {
+            if (!is_str(key)) {
                 return;
-            } else if (key == "text") {
-                node.innerText = val;
-            } else if (key == "html") {
-                node.innerHTML = val;
+            } else if (key == "id") {
+                node.setAttribute(key, val);
             } else if (key == "class") {
                 var cls = __tags_stringfy(val);
                 node.setAttribute(key, cls);
             } else if (key == "style") {
                 var sty = __tags_stringfy(val);
                 node.setAttribute(key, sty);
+            } else if (key == "text") {
+                node.innerText = val;
+            } else if (key == "html") {
+                node.innerHTML = val;
             } else if (key.toLowerCase().startsWith("on") && is_fun(val)) {
                 node[key.toLowerCase()] = val;
             } else {
@@ -613,15 +615,18 @@ function __tags_new_tag(name, args) {
     return node;
 }
 
-var tags = {};
 // let tags = new Proxy((name, ...args) => {
-//     if (name == null) return __tags_try_fresh();
+//     if (name == null) return 
 //     return __tags_new_tag(name, args);
 // }, {
 //     get: (target, name) => {
 //         return target.bind(null, name);
 //     }
 // })
+
+var tags = function tags() {
+    return __tags_try_fresh();
+};
 
 ALL_HTML_TAGA.forEach(function (tag) {
     function _tag() {
@@ -631,7 +636,7 @@ ALL_HTML_TAGA.forEach(function (tag) {
     globalThis[tag] = _tag;
 });
 
-// file:template 2025-08-05T14:42:07.058Z
+// file:template 2025-08-05T15:02:24.982Z
 'use strict';
 
 /**
@@ -671,7 +676,7 @@ var template2renderer = function template2renderer(html) {
     return renderer;
 };
 
-// file:html 2025-08-05T14:42:07.058Z
+// file:html 2025-08-05T15:02:24.982Z
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -866,7 +871,7 @@ var _html_function = function _html_function(args, func) {
     return _obj;
 };
 
-// file:markdown 2025-08-05T14:42:07.058Z
+// file:markdown 2025-08-05T15:02:24.982Z
 "use strict";
 
 /**
