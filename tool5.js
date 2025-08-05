@@ -1,90 +1,125 @@
-// file:constants 2025-07-24T12:39:36.848Z
+// file:constants 2025-08-05T14:42:07.057Z
 'use strict';
 
 var ALL_HTML_TAGA = ['head', 'title', 'base', 'link', 'meta', 'script', 'style', 'div', 'span', 'p', 'br', 'hr', 'b', 'strong', 'i', 'em', 'mark', 'small', 'del', 'ins', 'sub', 'sup', 'code', 'kbd', 'samp', 'var', 'pre', 'abbr', 'address', 'bdo', 'blockquote', 'cite', 'q', 'a', 'button', 'img', 'map', 'area', 'picture', 'audio', 'video', 'source', 'track', 'canvas', 'svg', 'iframe', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tbody', 'tfoot', 'thead', 'th', 'tr', 'td', 'col', 'colgroup', 'caption', "form", "input", "output", "button", "label", "textarea", "select", "option", "fieldset", "legend", "optgroup", "datalist", "keygen"];
 
-// file:javascript 2025-07-24T12:39:36.848Z
+// file:javascript 2025-08-05T14:42:07.057Z
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+var globalThis = function () {
+    if ((typeof globalThis === 'undefined' ? 'undefined' : _typeof(globalThis)) === 'object') {
+        return globalThis; // ES2020
+    } else if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) === 'object') {
+        return window; // browser
+    } else if ((typeof global === 'undefined' ? 'undefined' : _typeof(global)) === 'object') {
+        return global; // Node.js
+    } else {
+        return {}; // invalid
+    }
+}();
+
 var is_nil = function is_nil(val) {
-  return val == null;
+    return val == null;
 };
 
 var is_num = function is_num(val) {
-  return typeof val == 'number';
+    return typeof val == 'number';
 };
 
 var is_bol = function is_bol(val) {
-  return typeof val == 'boolean';
+    return typeof val == 'boolean';
 };
 
 var is_str = function is_str(val) {
-  return typeof val == 'string';
+    return typeof val == 'string';
 };
 
 var is_fun = function is_fun(val) {
-  return typeof val == 'function';
+    return typeof val == 'function';
 };
 
 var is_dom = function is_dom(val) {
-  return val instanceof Node;
+    return val instanceof Node;
 };
 
 var is_arr = function is_arr(val) {
-  return Array.isArray(val);
+    return Array.isArray(val);
 };
 
 var is_object = function is_object(val) {
-  return (typeof val === 'undefined' ? 'undefined' : _typeof(val)) == 'object' && !is_arr(val) && !is_dom(val);
+    return (typeof val === 'undefined' ? 'undefined' : _typeof(val)) == 'object' && !is_arr(val) && !is_dom(val);
 };
 
 var is_simple = function is_simple(val) {
-  return is_num(val) || is_bol(val) || is_str(val);
+    return is_num(val) || is_bol(val) || is_str(val);
 };
 
 var assert = function assert(val, msg) {
-  if (!val) throw new Error('' + msg);
+    if (!val) throw new Error('' + msg);
 };
 
 var error = function error(msg) {
-  throw new Error('' + msg);
+    throw new Error('' + msg);
 };
 
 var warn = function warn() {
-  var _console;
+    var _console;
 
-  (_console = console).warn.apply(_console, arguments);
+    (_console = console).warn.apply(_console, arguments);
 };
 
 var log = function log() {
-  var _console2;
+    var _console2;
 
-  (_console2 = console).log.apply(_console2, arguments);
+    (_console2 = console).log.apply(_console2, arguments);
 };
 
 var to_str = function to_str(val) {
-  return is_str(val) ? val : JSON.stringify(val);
+    return is_str(val) ? val : JSON.stringify(val);
 };
 
 var ar_str = function ar_str(val, separator) {
-  return val.flat().join(separator);
+    return val.flat().join(separator);
 };
 
 var is_valid_text = function is_valid_text(val) {
-  return typeof val === 'string' && val !== '';
+    return typeof val === 'string' && val !== '';
 };
 
 var upper_first_char = function upper_first_char(val) {
-  return val.charAt(0).toUpperCase() + val.slice(1);
+    return val.charAt(0).toUpperCase() + val.slice(1);
 };
 
 var lower_first_char = function lower_first_char(val) {
-  return val.charAt(0).toLowerCase() + val.slice(1);
+    return val.charAt(0).toLowerCase() + val.slice(1);
 };
 
-// file:query 2025-07-24T12:39:36.848Z
+if (!String.prototype.startsWith) {
+    Object.defineProperty(String.prototype, 'startsWith', {
+        value: function value(search) {
+            return this.lastIndexOf(search, 0) === 0;
+        }
+    });
+}
+
+if (!String.prototype.endsWith) {
+    Object.defineProperty(String.prototype, 'endsWith', {
+        value: function value(search) {
+            return this.indexOf(search, this.length - search.length) !== -1;
+        }
+    });
+}
+
+if (!String.prototype.replaceAll) {
+    String.prototype.replaceAll = function (search, replacement) {
+        var searchRegExp = new RegExp(search, 'g');
+        return this.replace(searchRegExp, replacement);
+    };
+}
+
+// file:query 2025-08-05T14:42:07.057Z
 'use strict';
 
 /**
@@ -258,7 +293,7 @@ var query2selector = function query2selector() {
     return selector;
 };
 
-// file:state 2025-07-24T12:39:36.848Z
+// file:state 2025-08-05T14:42:07.058Z
 "use strict";
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -390,7 +425,7 @@ var State = function () {
     });
 }();
 
-// file:tags 2025-07-24T12:39:36.848Z
+// file:tags 2025-08-05T14:42:07.058Z
 "use strict";
 
 /**
@@ -515,17 +550,23 @@ function __tags_new_tag(name, args) {
     }
     //
     function __customize(args) {
-        var cls = __tags_stringfy(args.class);
-        var sty = __tags_stringfy(args.style);
-        node.setAttribute('class', cls);
-        node.setAttribute('style', sty);
         Object.keys(args).forEach(function (key) {
             var val = args[key];
-            if (!is_str(key)) {
+            if (!is_str(key) || key == "id") {
                 return;
+            } else if (key == "text") {
+                node.innerText = val;
+            } else if (key == "html") {
+                node.innerHTML = val;
+            } else if (key == "class") {
+                var cls = __tags_stringfy(val);
+                node.setAttribute(key, cls);
+            } else if (key == "style") {
+                var sty = __tags_stringfy(val);
+                node.setAttribute(key, sty);
             } else if (key.toLowerCase().startsWith("on") && is_fun(val)) {
                 node[key.toLowerCase()] = val;
-            } else if (!['id', 'class', 'style'].includes(key)) {
+            } else {
                 node.setAttribute(key, val);
             }
         });
@@ -572,27 +613,25 @@ function __tags_new_tag(name, args) {
     return node;
 }
 
-var tags = new Proxy(function (name) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        args[_key - 1] = arguments[_key];
-    }
-
-    if (name == null) return __tags_try_fresh();
-    return __tags_new_tag(name, args);
-}, {
-    get: function get(target, name) {
-        return target.bind(null, name);
-    }
-});
+var tags = {};
+// let tags = new Proxy((name, ...args) => {
+//     if (name == null) return __tags_try_fresh();
+//     return __tags_new_tag(name, args);
+// }, {
+//     get: (target, name) => {
+//         return target.bind(null, name);
+//     }
+// })
 
 ALL_HTML_TAGA.forEach(function (tag) {
     function _tag() {
         return __tags_new_tag(tag, Array.prototype.slice.call(arguments));
     }
+    tags[tag] = _tag;
     globalThis[tag] = _tag;
 });
 
-// file:template 2025-07-24T12:39:36.848Z
+// file:template 2025-08-05T14:42:07.058Z
 'use strict';
 
 /**
@@ -632,7 +671,7 @@ var template2renderer = function template2renderer(html) {
     return renderer;
 };
 
-// file:html 2025-07-24T12:39:36.848Z
+// file:html 2025-08-05T14:42:07.058Z
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -827,7 +866,7 @@ var _html_function = function _html_function(args, func) {
     return _obj;
 };
 
-// file:markdown 2025-07-24T12:39:36.848Z
+// file:markdown 2025-08-05T14:42:07.058Z
 "use strict";
 
 /**

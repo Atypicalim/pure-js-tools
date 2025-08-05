@@ -1,4 +1,4 @@
-// file:constants 2025-07-24T12:39:36.841Z
+// file:constants 2025-08-05T14:42:07.054Z
 
 
 let ALL_HTML_TAGA = [
@@ -23,7 +23,19 @@ let ALL_HTML_TAGA = [
     "form", "input", "output", "button", "label", "textarea", "select", "option",
     "fieldset", "legend", "optgroup", "datalist", "keygen",
 ];
-// file:javascript 2025-07-24T12:39:36.842Z
+// file:javascript 2025-08-05T14:42:07.055Z
+
+var globalThis = (function() {
+    if (typeof globalThis === 'object') {
+        return globalThis; // ES2020
+    } else if (typeof window === 'object') {
+        return window; // browser
+    } else if (typeof global === 'object') {
+        return global; // Node.js
+    } else {
+        return {}; // invalid
+    }
+})();
 
 let is_nil = (val) => val == null;
 
@@ -61,7 +73,30 @@ let upper_first_char = (val) =>  val.charAt(0).toUpperCase() + val.slice(1);
 
 let lower_first_char = (val) =>  val.charAt(0).toLowerCase() + val.slice(1);
 
-// file:query 2025-07-24T12:39:36.842Z
+if (!String.prototype.startsWith) {
+    Object.defineProperty(String.prototype, 'startsWith', {
+        value: function(search) {
+            return this.lastIndexOf(search, 0) === 0;
+        }
+    });
+}
+
+if (!String.prototype.endsWith) {
+    Object.defineProperty(String.prototype, 'endsWith', {
+        value: function(search) {
+            return this.indexOf(search, this.length - search.length) !== -1;
+        }
+    });
+}
+
+if (!String.prototype.replaceAll) {
+    String.prototype.replaceAll = function(search, replacement) {
+        var searchRegExp = new RegExp(search, 'g');
+        return this.replace(searchRegExp, replacement);
+    };
+}
+
+// file:query 2025-08-05T14:42:07.055Z
 
 /**
  * simple node tool 
@@ -233,7 +268,7 @@ let lower_first_char = (val) =>  val.charAt(0).toLowerCase() + val.slice(1);
     return selector;
 }
 
-// file:state 2025-07-24T12:39:36.842Z
+// file:state 2025-08-05T14:42:07.056Z
 
 /**
  * simple state tool 
@@ -344,7 +379,7 @@ let State = function() {
 
 }()
 
-// file:tags 2025-07-24T12:39:36.843Z
+// file:tags 2025-08-05T14:42:07.056Z
 
 /**
  * simple tag tool
@@ -466,20 +501,26 @@ function __tags_new_tag(name, args) {
     }
     //
     function __customize(args) {
-        let cls = __tags_stringfy(args.class);
-        let sty = __tags_stringfy(args.style);
-        node.setAttribute('class', cls);
-        node.setAttribute('style', sty);
-        Object.keys(args).forEach((key) => {
-            let val = args[key];
-            if (!is_str(key)) {
+        Object.keys(args).forEach(function (key) {
+            var val = args[key];
+            if (!is_str(key) || key == "id") {
                 return;
+            } else if (key == "text") {
+                node.innerText = val;
+            } else if (key == "html") {
+                node.innerHTML = val;
+            } else if (key == "class") {
+                var cls = __tags_stringfy(val);
+                node.setAttribute(key, cls);
+            } else if (key == "style") {
+                var sty = __tags_stringfy(val);
+                node.setAttribute(key, sty);
             } else if (key.toLowerCase().startsWith("on") && is_fun(val)) {
                 node[key.toLowerCase()] = val;
-            } else if (!['id', 'class', 'style'].includes(key)) {
+            } else {
                 node.setAttribute(key, val);
             }
-        })
+        });
     }
     //
     function __append(arg) {
@@ -524,23 +565,25 @@ function __tags_new_tag(name, args) {
 }
 
 
-let tags = new Proxy((name, ...args) => {
-    if (name == null) return __tags_try_fresh();
-    return __tags_new_tag(name, args);
-}, {
-    get: (target, name) => {
-        return target.bind(null, name);
-    }
-})
+let tags = {};
+// let tags = new Proxy((name, ...args) => {
+//     if (name == null) return __tags_try_fresh();
+//     return __tags_new_tag(name, args);
+// }, {
+//     get: (target, name) => {
+//         return target.bind(null, name);
+//     }
+// })
 
 ALL_HTML_TAGA.forEach(function(tag) {
     function _tag() {
         return __tags_new_tag(tag, Array.prototype.slice.call(arguments))
     }
+    tags[tag] = _tag;
     globalThis[tag] = _tag
 });
 
-// file:template 2025-07-24T12:39:36.843Z
+// file:template 2025-08-05T14:42:07.056Z
 
 /**
  * https://krasimirtsonev.com/blog/article/Javascript-template-engine-in-just-20-line
@@ -579,7 +622,7 @@ var template2renderer = function(html) {
     return renderer;
 }
 
-// file:html 2025-07-24T12:39:36.844Z
+// file:html 2025-08-05T14:42:07.056Z
 
 /**
  * simple html tools
@@ -714,7 +757,7 @@ let _html_function = (args, func) => {
 
 
 
-// file:markdown 2025-07-24T12:39:36.847Z
+// file:markdown 2025-08-05T14:42:07.056Z
 
 /**
  * simple markdown to html converter

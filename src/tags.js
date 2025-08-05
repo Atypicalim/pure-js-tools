@@ -119,20 +119,26 @@ function __tags_new_tag(name, args) {
     }
     //
     function __customize(args) {
-        let cls = __tags_stringfy(args.class);
-        let sty = __tags_stringfy(args.style);
-        node.setAttribute('class', cls);
-        node.setAttribute('style', sty);
-        Object.keys(args).forEach((key) => {
-            let val = args[key];
-            if (!is_str(key)) {
+        Object.keys(args).forEach(function (key) {
+            var val = args[key];
+            if (!is_str(key) || key == "id") {
                 return;
+            } else if (key == "text") {
+                node.innerText = val;
+            } else if (key == "html") {
+                node.innerHTML = val;
+            } else if (key == "class") {
+                var cls = __tags_stringfy(val);
+                node.setAttribute(key, cls);
+            } else if (key == "style") {
+                var sty = __tags_stringfy(val);
+                node.setAttribute(key, sty);
             } else if (key.toLowerCase().startsWith("on") && is_fun(val)) {
                 node[key.toLowerCase()] = val;
-            } else if (!['id', 'class', 'style'].includes(key)) {
+            } else {
                 node.setAttribute(key, val);
             }
-        })
+        });
     }
     //
     function __append(arg) {
@@ -177,18 +183,20 @@ function __tags_new_tag(name, args) {
 }
 
 
-let tags = new Proxy((name, ...args) => {
-    if (name == null) return __tags_try_fresh();
-    return __tags_new_tag(name, args);
-}, {
-    get: (target, name) => {
-        return target.bind(null, name);
-    }
-})
+let tags = {};
+// let tags = new Proxy((name, ...args) => {
+//     if (name == null) return __tags_try_fresh();
+//     return __tags_new_tag(name, args);
+// }, {
+//     get: (target, name) => {
+//         return target.bind(null, name);
+//     }
+// })
 
 ALL_HTML_TAGA.forEach(function(tag) {
     function _tag() {
         return __tags_new_tag(tag, Array.prototype.slice.call(arguments))
     }
+    tags[tag] = _tag;
     globalThis[tag] = _tag
 });
