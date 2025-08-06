@@ -21,7 +21,7 @@ let is_str = (val) => typeof val == 'string';
 
 let is_fun = (val) => typeof val == 'function';
 
-let is_dom = (val) => val instanceof Node;
+let is_dom = (val) => typeof Node != 'undefined' && val instanceof Node;
 
 let is_arr = (val) => Array.isArray(val);
 
@@ -73,8 +73,11 @@ if (!String.prototype.replaceAll) {
 if (!String.prototype.format) {
     String.prototype.format = function() {
         var args = arguments;
-        return this.replace(/{(\d+)}/g, function(match, number) { 
-            return typeof args[number] != 'undefined' ? args[number] : match;
+        var mappy = args.length == 1 && is_object(args[0]);
+        var opts = mappy ? args[0] : args;
+        return this.replace(mappy ? /{([a-zA-Z_][0-9a-zA-Z_$]*)}/g : /{(\d+)}/g, function(match, key) {
+            var arg = opts[key];
+            return typeof arg == 'undefined' ? match : (is_fun(arg) ? arg(key) : String(arg));
         });
     };
 }

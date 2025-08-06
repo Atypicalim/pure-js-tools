@@ -1,9 +1,9 @@
-// file:constants 2025-08-06T14:27:55.079Z
+// file:constants 2025-08-06T15:05:24.994Z
 'use strict';
 
 var ALL_HTML_TAGA = ['head', 'title', 'base', 'link', 'meta', 'script', 'style', 'div', 'span', 'p', 'br', 'hr', 'b', 'strong', 'i', 'em', 'mark', 'small', 'del', 'ins', 'sub', 'sup', 'code', 'kbd', 'samp', 'var', 'pre', 'abbr', 'address', 'bdo', 'blockquote', 'cite', 'q', 'a', 'button', 'img', 'map', 'area', 'picture', 'audio', 'video', 'source', 'track', 'canvas', 'svg', 'iframe', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tbody', 'tfoot', 'thead', 'th', 'tr', 'td', 'col', 'colgroup', 'caption', "form", "input", "output", "button", "label", "textarea", "select", "option", "fieldset", "legend", "optgroup", "datalist", "keygen"];
 
-// file:javascript 2025-08-06T14:27:55.079Z
+// file:javascript 2025-08-06T15:05:24.994Z
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -41,7 +41,7 @@ var is_fun = function is_fun(val) {
 };
 
 var is_dom = function is_dom(val) {
-    return val instanceof Node;
+    return typeof Node != 'undefined' && val instanceof Node;
 };
 
 var is_arr = function is_arr(val) {
@@ -122,13 +122,16 @@ if (!String.prototype.replaceAll) {
 if (!String.prototype.format) {
     String.prototype.format = function () {
         var args = arguments;
-        return this.replace(/{(\d+)}/g, function (match, number) {
-            return typeof args[number] != 'undefined' ? args[number] : match;
+        var mappy = args.length == 1 && is_object(args[0]);
+        var opts = mappy ? args[0] : args;
+        return this.replace(mappy ? /{([a-zA-Z_][0-9a-zA-Z_$]*)}/g : /{(\d+)}/g, function (match, key) {
+            var arg = opts[key];
+            return typeof arg == 'undefined' ? match : is_fun(arg) ? arg(key) : String(arg);
         });
     };
 }
 
-// file:query 2025-08-06T14:27:55.079Z
+// file:query 2025-08-06T15:05:24.994Z
 'use strict';
 
 /**
@@ -302,7 +305,7 @@ var query2selector = function query2selector() {
     return selector;
 };
 
-// file:state 2025-08-06T14:27:55.079Z
+// file:state 2025-08-06T15:05:24.994Z
 "use strict";
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -434,7 +437,7 @@ var State = function () {
     });
 }();
 
-// file:tags 2025-08-06T14:27:55.080Z
+// file:tags 2025-08-06T15:05:24.994Z
 "use strict";
 
 /**
@@ -666,7 +669,7 @@ ALL_HTML_TAGA.forEach(function (tag) {
     globalThis[tag] = _tag;
 });
 
-// file:template 2025-08-06T14:27:55.080Z
+// file:template 2025-08-06T15:05:24.994Z
 'use strict';
 
 /**
@@ -706,7 +709,7 @@ var template2renderer = function template2renderer(html) {
     return renderer;
 };
 
-// file:html 2025-08-06T14:27:55.080Z
+// file:html 2025-08-06T15:05:24.995Z
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -901,7 +904,7 @@ var _html_function = function _html_function(args, func) {
     return _obj;
 };
 
-// file:markdown 2025-08-06T14:27:55.080Z
+// file:markdown 2025-08-06T15:05:24.995Z
 "use strict";
 
 /**

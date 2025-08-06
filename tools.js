@@ -1,4 +1,4 @@
-// file:constants 2025-08-06T14:27:55.076Z
+// file:constants 2025-08-06T15:05:24.991Z
 
 
 let ALL_HTML_TAGA = [
@@ -23,7 +23,7 @@ let ALL_HTML_TAGA = [
     "form", "input", "output", "button", "label", "textarea", "select", "option",
     "fieldset", "legend", "optgroup", "datalist", "keygen",
 ];
-// file:javascript 2025-08-06T14:27:55.077Z
+// file:javascript 2025-08-06T15:05:24.992Z
 
 var globalThis = (function() {
     if (typeof globalThis === 'object') {
@@ -47,7 +47,7 @@ let is_str = (val) => typeof val == 'string';
 
 let is_fun = (val) => typeof val == 'function';
 
-let is_dom = (val) => val instanceof Node;
+let is_dom = (val) => typeof Node != 'undefined' && val instanceof Node;
 
 let is_arr = (val) => Array.isArray(val);
 
@@ -99,13 +99,16 @@ if (!String.prototype.replaceAll) {
 if (!String.prototype.format) {
     String.prototype.format = function() {
         var args = arguments;
-        return this.replace(/{(\d+)}/g, function(match, number) { 
-            return typeof args[number] != 'undefined' ? args[number] : match;
+        var mappy = args.length == 1 && is_object(args[0]);
+        var opts = mappy ? args[0] : args;
+        return this.replace(mappy ? /{([a-zA-Z_][0-9a-zA-Z_$]*)}/g : /{(\d+)}/g, function(match, key) {
+            var arg = opts[key];
+            return typeof arg == 'undefined' ? match : (is_fun(arg) ? arg(key) : String(arg));
         });
     };
 }
 
-// file:query 2025-08-06T14:27:55.077Z
+// file:query 2025-08-06T15:05:24.992Z
 
 /**
  * simple node tool 
@@ -277,7 +280,7 @@ if (!String.prototype.format) {
     return selector;
 }
 
-// file:state 2025-08-06T14:27:55.077Z
+// file:state 2025-08-06T15:05:24.992Z
 
 /**
  * simple state tool 
@@ -388,7 +391,7 @@ let State = function() {
 
 }()
 
-// file:tags 2025-08-06T14:27:55.077Z
+// file:tags 2025-08-06T15:05:24.993Z
 
 /**
  * simple tag tool
@@ -607,7 +610,7 @@ ALL_HTML_TAGA.forEach((tag) => {
     globalThis[tag] = _tag
 });
 
-// file:template 2025-08-06T14:27:55.077Z
+// file:template 2025-08-06T15:05:24.993Z
 
 /**
  * https://krasimirtsonev.com/blog/article/Javascript-template-engine-in-just-20-line
@@ -646,7 +649,7 @@ var template2renderer = function(html) {
     return renderer;
 }
 
-// file:html 2025-08-06T14:27:55.078Z
+// file:html 2025-08-06T15:05:24.993Z
 
 /**
  * simple html tools
@@ -781,7 +784,7 @@ let _html_function = (args, func) => {
 
 
 
-// file:markdown 2025-08-06T14:27:55.078Z
+// file:markdown 2025-08-06T15:05:24.993Z
 
 /**
  * simple markdown to html converter
