@@ -1,4 +1,4 @@
-// file:constants 2025-08-05T15:02:24.978Z
+// file:constants 2025-08-06T12:19:35.805Z
 
 
 let ALL_HTML_TAGA = [
@@ -23,7 +23,7 @@ let ALL_HTML_TAGA = [
     "form", "input", "output", "button", "label", "textarea", "select", "option",
     "fieldset", "legend", "optgroup", "datalist", "keygen",
 ];
-// file:javascript 2025-08-05T15:02:24.979Z
+// file:javascript 2025-08-06T12:19:35.806Z
 
 var globalThis = (function() {
     if (typeof globalThis === 'object') {
@@ -96,7 +96,7 @@ if (!String.prototype.replaceAll) {
     };
 }
 
-// file:query 2025-08-05T15:02:24.980Z
+// file:query 2025-08-06T12:19:35.806Z
 
 /**
  * simple node tool 
@@ -268,7 +268,7 @@ if (!String.prototype.replaceAll) {
     return selector;
 }
 
-// file:state 2025-08-05T15:02:24.980Z
+// file:state 2025-08-06T12:19:35.806Z
 
 /**
  * simple state tool 
@@ -379,7 +379,7 @@ let State = function() {
 
 }()
 
-// file:tags 2025-08-05T15:02:24.980Z
+// file:tags 2025-08-06T12:19:35.807Z
 
 /**
  * simple tag tool
@@ -461,17 +461,21 @@ let __tags_new_child = (val) => {
     }
 }
 
-let __tags_try_fresh = () => {
+let __tags_try_fresh = (_func, ...args) => {
     for (let i = _listenArrays.length - 1; i >= 0; i--) {
         const element = _listenArrays[i];
         const node = element[0];
         const func = element[1];
-        const rslt = func();
-        const temp = __tags_new_child(rslt);
-        node.replaceWith(temp);
-        element[0] = temp;
+        if (!is_fun(_func) || _func == func) {
+            const rslt = func(...args);
+            const temp = __tags_new_child(rslt);
+            node.replaceWith(temp);
+            element[0] = temp;
+        }
     }
-    _listenArrays = _listenArrays.filter((element) => element.length == 2 || element[0].parentNode != null)
+    _listenArrays = _listenArrays.filter((element) => {
+        return element.length == 2 || element[0].parentNode != null;
+    })
 }
 
 // --------------------------------------------------------------------------
@@ -554,7 +558,7 @@ function __tags_new_tag(name, args) {
     if (is_simple(arg0) && is_object(arg1)) {
         __construct(args.shift());
         __customize(args.shift());
-    } else if (is_simple(arg0) && args.length == 1) {
+    } else if (is_simple(arg0)) {
         __construct(args.shift());
     } else if (is_object(arg0)) {
         __customize(args.shift());
@@ -575,19 +579,26 @@ function __tags_new_tag(name, args) {
 //     }
 // })
 
-let tags = function() {
-    return __tags_try_fresh();
+
+let tags = (option, ...args) => {
+    if (is_str(option)) {
+        return __tags_new_tag(option, Array.prototype.slice.call(args));
+    } else if (is_fun(option)) {
+        return __tags_try_fresh(option, ...args);
+    } else {
+        return __tags_try_fresh(option, ...args);
+    }
 }
 
-ALL_HTML_TAGA.forEach(function(tag) {
-    function _tag() {
-        return __tags_new_tag(tag, Array.prototype.slice.call(arguments))
+ALL_HTML_TAGA.forEach((tag) => {
+    let _tag = (...args) => {
+        return __tags_new_tag(tag, Array.prototype.slice.call(args));
     }
     tags[tag] = _tag;
     globalThis[tag] = _tag
 });
 
-// file:template 2025-08-05T15:02:24.980Z
+// file:template 2025-08-06T12:19:35.807Z
 
 /**
  * https://krasimirtsonev.com/blog/article/Javascript-template-engine-in-just-20-line
@@ -626,7 +637,7 @@ var template2renderer = function(html) {
     return renderer;
 }
 
-// file:html 2025-08-05T15:02:24.980Z
+// file:html 2025-08-06T12:19:35.807Z
 
 /**
  * simple html tools
@@ -761,7 +772,7 @@ let _html_function = (args, func) => {
 
 
 
-// file:markdown 2025-08-05T15:02:24.980Z
+// file:markdown 2025-08-06T12:19:35.808Z
 
 /**
  * simple markdown to html converter

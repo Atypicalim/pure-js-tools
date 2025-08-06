@@ -79,17 +79,21 @@ let __tags_new_child = (val) => {
     }
 }
 
-let __tags_try_fresh = () => {
+let __tags_try_fresh = (_func, ...args) => {
     for (let i = _listenArrays.length - 1; i >= 0; i--) {
         const element = _listenArrays[i];
         const node = element[0];
         const func = element[1];
-        const rslt = func();
-        const temp = __tags_new_child(rslt);
-        node.replaceWith(temp);
-        element[0] = temp;
+        if (!is_fun(_func) || _func == func) {
+            const rslt = func(...args);
+            const temp = __tags_new_child(rslt);
+            node.replaceWith(temp);
+            element[0] = temp;
+        }
     }
-    _listenArrays = _listenArrays.filter((element) => element.length == 2 || element[0].parentNode != null)
+    _listenArrays = _listenArrays.filter((element) => {
+        return element.length == 2 || element[0].parentNode != null;
+    })
 }
 
 // --------------------------------------------------------------------------
@@ -172,7 +176,7 @@ function __tags_new_tag(name, args) {
     if (is_simple(arg0) && is_object(arg1)) {
         __construct(args.shift());
         __customize(args.shift());
-    } else if (is_simple(arg0) && args.length == 1) {
+    } else if (is_simple(arg0)) {
         __construct(args.shift());
     } else if (is_object(arg0)) {
         __customize(args.shift());
@@ -193,13 +197,20 @@ function __tags_new_tag(name, args) {
 //     }
 // })
 
-let tags = function() {
-    return __tags_try_fresh();
+
+let tags = (option, ...args) => {
+    if (is_str(option)) {
+        return __tags_new_tag(option, Array.prototype.slice.call(args));
+    } else if (is_fun(option)) {
+        return __tags_try_fresh(option, ...args);
+    } else {
+        return __tags_try_fresh(option, ...args);
+    }
 }
 
-ALL_HTML_TAGA.forEach(function(tag) {
-    function _tag() {
-        return __tags_new_tag(tag, Array.prototype.slice.call(arguments))
+ALL_HTML_TAGA.forEach((tag) => {
+    let _tag = (...args) => {
+        return __tags_new_tag(tag, Array.prototype.slice.call(args));
     }
     tags[tag] = _tag;
     globalThis[tag] = _tag
