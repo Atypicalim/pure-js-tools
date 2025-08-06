@@ -18,7 +18,7 @@ let orders = [
 
 // for (let i = 0; i < orders.length; i++) {
 //     const name = orders[i];
-//     const path = `src/${folder}${name}.js`
+//     const path = `${FOLDER_SOURCE}${name}.js`
 //     const module = require(path);
 //     console.log(path, module);
 // }
